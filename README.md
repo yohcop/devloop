@@ -1,4 +1,5 @@
-A couple of scripts that automates the compilation/refresh operations when source files are saved in a project.
+A couple of scripts that automates the compilation/refresh operations
+when source files are saved in a project.
 
 == watch-n-run.sh ==
 
@@ -38,3 +39,9 @@ localhost:9234/json.
 Say you have to compile your css files with closure-stylesheets, and you do that with a gss.sh script. When the css file change, you want to recompile them, and reload the right browser tab. Your dev site is at localhost:8080.
 
 $ ./watch-n-run.sh css ./gss.sh "./chrome-remote-reload.py localhost:8080"
+
+== devloop.py ==
+
+See comments at the top of the file. It is basically a script that reads
+a json configuration file that contains a list of commands to execute
+when the files specified by a glob change.
