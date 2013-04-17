@@ -44,4 +44,4 @@ Say you have to compile your css files with closure-stylesheets, and you do that
 
 See comments at the top of the file. It is basically a script that reads
 a json configuration file that contains a list of commands to execute
-when the files specified by a glob change.
+when the files specified by a rule change.

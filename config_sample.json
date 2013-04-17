@@ -1,20 +1,23 @@
 [
   {
-    "glob": "src/*.cc",
+    "dir": "src",
+    "match": "*.cc",
     "cmds": [
       "make",
       "./run_tests.sh"
     ]
   },
   {
-    "glob": "./**/*.js",
+    "dir": "src",
+    "match": "*.js",
     "cmds": [
       "./deps.sh",
       "chrome-remote-reload.py localhost:8080"
     ]
   },
   {
-    "glob": "./*",
+    "dir": ".",
+    "match": "*",
     "cmds": [
       "pwd",
     ]

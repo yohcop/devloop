@@ -5,14 +5,16 @@ Reads a json config file, such as (note there are no trailing commas)
 >>>>>
 [
   {
-    "glob": "./*.py",
+    "dir": "genfiles",
+    "match": "*.html",
     "cmds": [
       "ls",
       "echo 'hello world'"
     ]
   },
   {
-    "glob": "./*",
+    "dir": "src",
+    "match": "*.js",
     "cmds": [
       "pwd",
       "ls"
@@ -23,7 +25,7 @@ Reads a json config file, such as (note there are no trailing commas)
 Listens for changes to the files matching the blobs, and execute
 the list of commands for each file when they change.
 
-If a file is matched by multiple globs, then all the commands are
+If a file is matched by multiple rules, then all the commands are
 executed. If the same command appear in multiple list of commands, it is
 only executed once.
 
@@ -31,11 +33,11 @@ If one of the commands returns a non-zero value, the following commands of
 the same list of commands are not executed.
 """
 
+import fnmatch
 import json
-import sys
-import glob
-import pyinotify
 import os
+import pyinotify
+import sys
 
 wm = pyinotify.WatchManager()
 mask = pyinotify.IN_MODIFY
@@ -45,6 +47,8 @@ watches = {}
 
 class PTmp(pyinotify.ProcessEvent):
   def process_default(self, event):
+    # Add the watch back to keep getting events for that file.
+    wm.add_watch(event.path, mask)
     try:
       # Get the list of configs for that path.
       w = watches[event.path]
@@ -62,8 +66,14 @@ class PTmp(pyinotify.ProcessEvent):
               ran[cmd] = True
     except:
       pass
-    # Add the watch back to keep getting events for that file.
-    wm.add_watch(event.path, mask)
+
+
+def findFiles(src, ext):
+  res = []
+  for root, _, filenames in os.walk(src):
+    res += [os.path.join(root, f)
+            for f in fnmatch.filter(filenames, ext)]
+  return res
 
 
 notifier = pyinotify.Notifier(wm, PTmp())
@@ -71,7 +81,7 @@ notifier = pyinotify.Notifier(wm, PTmp())
 cfg = json.loads(open(sys.argv[1]).read())
 for d in cfg:
   # For each config, get the files that should be watched.
-  files = glob.glob(d['glob'])
+  files = findFiles(d['dir'], d['match'])
   for f in files:
     # Normalize the paths (seems to be what inotify provides)
     n = os.path.normpath(f)
